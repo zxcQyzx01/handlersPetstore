@@ -31,3 +31,7 @@ func (s *PetService) GetPetByID(id int64) (*domain.Pet, error) {
 func (s *PetService) FindPetsByStatus(status []string) ([]domain.Pet, error) {
 	return s.repo.FindByStatus(status)
 }
+
+func (s *PetService) FindPetsByTags(tags []string) ([]domain.Pet, error) {
+	return s.repo.FindByTags(tags)
+}
