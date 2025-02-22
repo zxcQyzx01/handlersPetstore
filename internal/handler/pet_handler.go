@@ -111,3 +111,24 @@ func (h *PetHandler) DeletePet(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+// @Summary Find pets by tags
+// @Description Multiple tags can be provided with comma separated strings
+// @Tags pet
+// @Accept json
+// @Produce json
+// @Param tags query []string true "Tags to filter by"
+// @Success 200 {array} domain.Pet
+// @Router /pet/findByTags [get]
+// @Security ApiKeyAuth
+func (h *PetHandler) FindPetsByTags(w http.ResponseWriter, r *http.Request) {
+	tags := r.URL.Query()["tags"]
+	pets, err := h.service.FindPetsByTags(tags)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(pets)
+}
