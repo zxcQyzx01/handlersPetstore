@@ -7,6 +7,21 @@ definitions:
       name:
         type: string
     type: object
+  domain.Order:
+    properties:
+      complete:
+        type: boolean
+      id:
+        type: integer
+      petId:
+        type: integer
+      quantity:
+        type: integer
+      shipDate:
+        type: string
+      status:
+        type: string
+    type: object
   domain.Pet:
     properties:
       category:
@@ -31,6 +46,25 @@ definitions:
       id:
         type: integer
       name:
+        type: string
+    type: object
+  domain.User:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      userStatus:
+        type: integer
+      username:
         type: string
     type: object
 host: localhost:8080
@@ -95,4 +129,260 @@ paths:
       summary: Get pet by ID
       tags:
       - pet
+  /pet/findByTags:
+    get:
+      consumes:
+      - application/json
+      description: Multiple tags can be provided with comma separated strings
+      parameters:
+      - collectionFormat: csv
+        description: Tags to filter by
+        in: query
+        items:
+          type: string
+        name: tags
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Pet'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Find pets by tags
+      tags:
+      - pet
+  /store/inventory:
+    get:
+      description: Returns a map of status codes to quantities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+      summary: Get pet inventories by status
+      tags:
+      - store
+  /store/order:
+    post:
+      consumes:
+      - application/json
+      description: Place a new order in the store
+      parameters:
+      - description: Order object that needs to be added
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Order'
+      summary: Place an order for a pet
+      tags:
+      - store
+  /store/order/{orderId}:
+    delete:
+      description: For valid response try integer IDs with positive integer value
+      parameters:
+      - description: ID of the order that needs to be deleted
+        in: path
+        name: orderId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order deleted successfully
+          schema:
+            type: string
+      summary: Delete purchase order by ID
+      tags:
+      - store
+    get:
+      description: For valid response try integer IDs with value >= 1
+      parameters:
+      - description: ID of order that needs to be fetched
+        in: path
+        name: orderId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Order'
+      summary: Find purchase order by ID
+      tags:
+      - store
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User object that needs to be added
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+      summary: Create user
+      tags:
+      - user
+  /user/{username}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user by username
+      parameters:
+      - description: The name that needs to be deleted
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            type: string
+      summary: Delete user
+      tags:
+      - user
+    get:
+      consumes:
+      - application/json
+      description: Get user by username
+      parameters:
+      - description: The name that needs to be fetched
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+      summary: Get user by username
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: Update user by username
+      parameters:
+      - description: Name of user that needs to be updated
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: User object that needs to be updated
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User updated successfully
+          schema:
+            type: string
+      summary: Update user
+      tags:
+      - user
+  /user/createWithArray:
+    post:
+      consumes:
+      - application/json
+      description: Creates list of users with given input array
+      parameters:
+      - description: List of user objects
+        in: body
+        name: users
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/domain.User'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Users created successfully
+          schema:
+            type: string
+      summary: Create users with array
+      tags:
+      - user
+  /user/login:
+    get:
+      consumes:
+      - application/json
+      description: Logs user into the system
+      parameters:
+      - description: The user name for login
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: The password for login
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            type: string
+      summary: Login user
+      tags:
+      - user
+  /user/logout:
+    get:
+      consumes:
+      - application/json
+      description: Logs out current logged in user session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            type: string
+      summary: Logout user
+      tags:
+      - user
 swagger: "2.0"
